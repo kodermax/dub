@@ -10,7 +10,7 @@ import IconMenu from "@/components/shared/icon-menu";
 import BlurImage from "#/ui/blur-image";
 import CopyButton from "@/components/shared/copy-button";
 import { Chart, Delete, ThreeDots } from "@/components/shared/icons";
-import Popover from "@/components/shared/popover";
+import Popover from "#/ui/popover";
 import Tooltip, { TooltipContent } from "#/ui/tooltip";
 import useProject from "#/lib/swr/use-project";
 import { LinkProps } from "#/lib/types";
@@ -170,11 +170,15 @@ export default function LinkCard({ props }: { props: LinkProps }) {
         selected ? "border-black" : "border-gray-50"
       } relative rounded-lg border-2 bg-white p-3 pr-1 shadow transition-all hover:shadow-md sm:p-4`}
     >
-      <LinkQRModal />
-      <AddEditLinkModal />
-      <DuplicateLinkModal />
-      <ArchiveLinkModal />
-      <DeleteLinkModal />
+      {isVisible && (
+        <>
+          <LinkQRModal />
+          <AddEditLinkModal />
+          <DuplicateLinkModal />
+          <ArchiveLinkModal />
+          <DeleteLinkModal />
+        </>
+      )}
       <li className="relative flex items-center justify-between">
         <div className="relative flex shrink items-center">
           {archived ? (
@@ -257,9 +261,17 @@ export default function LinkCard({ props }: { props: LinkProps }) {
                 {timeAgo(createdAt)}
               </p>
               <p>•</p>
-              <p className="max-w-[180px] truncate text-sm font-medium text-gray-700 sm:max-w-[300px] md:max-w-[360px] xl:max-w-[500px]">
+              <a
+                onClick={(e) => {
+                  e.stopPropagation(); // to avoid selecting the link card
+                }}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="max-w-[180px] truncate text-sm font-medium text-gray-700 underline-offset-2 hover:underline sm:max-w-[300px] md:max-w-[360px] xl:max-w-[500px]"
+              >
                 {url}
-              </p>
+              </a>
             </div>
           </div>
         </div>

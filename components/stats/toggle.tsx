@@ -5,9 +5,9 @@ import { Calendar, Share2, ChevronDown, Lock } from "lucide-react";
 import { ExpandingArrow } from "#/ui/icons";
 import { INTERVALS } from "#/lib/stats";
 import useScroll from "#/lib/hooks/use-scroll";
-import { linkConstructor } from "#/lib/utils";
+import { cn, linkConstructor } from "#/lib/utils";
 import IconMenu from "@/components/shared/icon-menu";
-import Popover from "@/components/shared/popover";
+import Popover from "#/ui/popover";
 import useSWR, { mutate } from "swr";
 import { fetcher } from "#/lib/utils";
 import { toast } from "sonner";
@@ -16,16 +16,16 @@ import { StatsContext } from ".";
 import useProject from "#/lib/swr/use-project";
 import Tooltip, { TooltipContent } from "#/ui/tooltip";
 import { ModalContext } from "#/ui/modal-provider";
+import punycode from "punycode/";
 
-export default function Toggle({ atModalTop }: { atModalTop?: boolean }) {
+export default function Toggle() {
   const router = useRouter();
   const { slug: projectSlug } = router.query as { slug?: string };
 
-  const { basePath, domain, interval, key } = useContext(StatsContext);
+  const { basePath, domain, interval, key, modal } = useContext(StatsContext);
   const { setShowAddProjectModal, setShowUpgradePlanModal } =
     useContext(ModalContext);
 
-  const atTop = useScroll(80) || atModalTop;
   const [openDatePopover, setOpenDatePopover] = useState(false);
 
   const selectedInterval = useMemo(() => {
@@ -33,12 +33,15 @@ export default function Toggle({ atModalTop }: { atModalTop?: boolean }) {
   }, [interval]);
 
   const { plan } = useProject();
+  const scrolled = useScroll(80);
 
   return (
     <div
-      className={`z-10 mb-5 ${
-        basePath.startsWith("/stats") ? "top-0" : "top-[6.95rem]"
-      } sticky bg-gray-50 py-3 sm:py-5 ${atTop ? "shadow-md" : ""}`}
+      className={cn("sticky top-[6.95rem] z-10 mb-5 bg-gray-50 py-3 md:py-5", {
+        "top-14": basePath.startsWith("/stats"),
+        "top-6": modal,
+        "shadow-md": scrolled && !modal,
+      })}
     >
       <div className="mx-auto flex max-w-4xl flex-col items-center justify-between space-y-3 px-2.5 sm:flex-row sm:space-y-0 lg:px-0">
         <a
@@ -47,7 +50,11 @@ export default function Toggle({ atModalTop }: { atModalTop?: boolean }) {
           target="_blank"
           rel="noreferrer"
         >
-          {linkConstructor({ key, domain, pretty: true })}
+          {linkConstructor({
+            key,
+            domain: punycode.toUnicode(domain),
+            pretty: true,
+          })}
           <ExpandingArrow className="h-5 w-5" />
         </a>
         <div className="flex items-center">
@@ -56,7 +63,7 @@ export default function Toggle({ atModalTop }: { atModalTop?: boolean }) {
           )}
           <Popover
             content={
-              <div className="w-full p-2 md:w-48">
+              <div className="grid w-full p-2 md:w-48">
                 {INTERVALS.map(({ display, slug }) =>
                   (slug === "all" || slug === "90d") &&
                   (!plan || plan === "free") ? (
@@ -171,7 +178,9 @@ const SharePopover = () => {
         if (res.status === 200) {
           mutate(`${endpoint}${queryString}`);
           !publicStats &&
-            navigator.clipboard.writeText(`https://${domain}/stats/${key}`);
+            navigator.clipboard.writeText(
+              `https://${domain}/stats/${encodeURIComponent(key)}`,
+            );
           // artificial delay to sync toast with the switch change
           await new Promise((r) => setTimeout(r, 200));
         }
@@ -218,14 +227,14 @@ const SharePopover = () => {
             <div className="divide-x-200 mt-2 flex items-center justify-between divide-x overflow-hidden rounded-md border border-gray-200 bg-gray-100">
               <div className="overflow-scroll pl-2 scrollbar-hide">
                 <p className="whitespace-nowrap text-gray-600">
-                  https://{domain}/stats/{key}
+                  https://{domain}/stats/{encodeURIComponent(key)}
                 </p>
               </div>
               <button
                 className="h-8 flex-none border-l bg-white px-2 hover:bg-gray-50 active:bg-gray-100"
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `https://${domain}/stats/${key}`,
+                    `https://${domain}/stats/${encodeURIComponent(key)}`,
                   );
                   setCopied(true);
                   toast.success("Copied to clipboard");

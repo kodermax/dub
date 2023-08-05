@@ -11,9 +11,8 @@ import { UploadCloud } from "@/components/shared/icons";
 import { LoadingCircle } from "#/ui/icons";
 import { LinkProps } from "#/lib/types";
 import Switch from "#/ui/switch";
-import { FADE_IN_ANIMATION_SETTINGS } from "#/lib/constants";
-import Tooltip from "#/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { FADE_IN_ANIMATION_SETTINGS, HOME_DOMAIN } from "#/lib/constants";
+import { InfoTooltip, SimpleTooltipContent } from "#/ui/tooltip";
 
 export default function OGSection({
   props,
@@ -73,9 +72,15 @@ export default function OGSection({
           <h2 className="text-sm font-medium text-gray-900">
             Custom Social Media Cards
           </h2>
-          <Tooltip content="Customize the title, description, and thumbnail image that will be shown when you share this link on social media.">
-            <HelpCircle className="h-4 w-4 text-gray-600" />
-          </Tooltip>
+          <InfoTooltip
+            content={
+              <SimpleTooltipContent
+                title="Customize how your links look when shared on social media."
+                cta="Learn more."
+                href={`${HOME_DOMAIN}/help/article/how-to-create-link#custom-social-media-cards`}
+              />
+            }
+          />
         </div>
         <Switch
           fn={() => setData((prev) => ({ ...prev, proxy: !proxy }))}

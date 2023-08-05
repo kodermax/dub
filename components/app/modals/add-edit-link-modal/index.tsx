@@ -13,7 +13,7 @@ import { mutate } from "swr";
 import { useDebounce } from "use-debounce";
 import BlurImage from "#/ui/blur-image";
 import { AlertCircleFill, Lock, Random, X } from "@/components/shared/icons";
-import { LoadingCircle } from "#/ui/icons";
+import { LoadingCircle, Logo } from "#/ui/icons";
 import Modal from "#/ui/modal";
 import Tooltip, { TooltipContent } from "#/ui/tooltip";
 import useProject from "#/lib/swr/use-project";
@@ -35,7 +35,11 @@ import ExpirationSection from "./expiration-section";
 import IOSSection from "./ios-section";
 import AndroidSection from "./android-section";
 import Preview from "./preview";
-import { DEFAULT_LINK_PROPS, GOOGLE_FAVICON_URL } from "#/lib/constants";
+import {
+  DEFAULT_LINK_PROPS,
+  GOOGLE_FAVICON_URL,
+  HOME_DOMAIN,
+} from "#/lib/constants";
 import useDomains from "#/lib/swr/use-domains";
 import { toast } from "sonner";
 import va from "@vercel/analytics";
@@ -182,16 +186,21 @@ function AddEditLinkModal({
   }, [debouncedUrl, password, showAddEditLinkModal, proxy]);
 
   const logo = useMemo(() => {
-    // if the link is password protected, or if it's a new link and there's no URL yet,
-    // return the default Dub logo
-    if (password || (!debouncedUrl && !props)) {
-      return "/_static/logo.png";
-      // otherwise, get the favicon of the URL
-    } else {
-      return `${GOOGLE_FAVICON_URL}${getApexDomain(
-        debouncedUrl || props?.url || "https://dub.sh",
-      )}`;
-    }
+    // if the link is password protected, or if it's a new link and there's no URL yet, return the default Dub logo
+    // otherwise, get the favicon of the URL
+    const url = password || !debouncedUrl ? null : debouncedUrl || props?.url;
+
+    return url ? (
+      <BlurImage
+        src={`${GOOGLE_FAVICON_URL}${getApexDomain(url)}`}
+        alt="Logo"
+        className="h-10 w-10 rounded-full"
+        width={20}
+        height={20}
+      />
+    ) : (
+      <Logo />
+    );
   }, [password, debouncedUrl, props]);
 
   const endpoint = useMemo(() => {
@@ -266,9 +275,11 @@ function AddEditLinkModal({
     <Modal
       showModal={showAddEditLinkModal}
       setShowModal={setShowAddEditLinkModal}
-      disableDefaultHide={homepageDemo ? false : true}
+      className="max-w-screen-lg"
+      preventDefaultClose={homepageDemo ? false : true}
+      {...(welcomeFlow && { onClose: () => router.back() })}
     >
-      <div className="relative grid max-h-[min(906px,_90vh)] w-full divide-x divide-gray-100 overflow-auto bg-white shadow-xl transition-all scrollbar-hide md:max-w-screen-lg md:grid-cols-2 md:overflow-hidden md:rounded-2xl md:border md:border-gray-200">
+      <div className="relative grid max-h-[min(906px,_90vh)] w-full divide-x divide-gray-100 overflow-auto scrollbar-hide md:grid-cols-2">
         {!welcomeFlow && !homepageDemo && (
           <button
             onClick={() => setShowAddEditLinkModal(false)}
@@ -283,13 +294,7 @@ function AddEditLinkModal({
           onScroll={handleScroll}
         >
           <div className="z-10 flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 pb-8 pt-8 transition-all md:sticky md:top-0 md:px-16">
-            <BlurImage
-              src={logo}
-              alt="Logo"
-              className="h-10 w-10 rounded-full"
-              width={20}
-              height={20}
-            />
+            {logo}
             <h3 className="max-w-sm truncate text-lg font-medium">
               {props
                 ? `Edit ${linkConstructor({

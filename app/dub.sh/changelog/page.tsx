@@ -3,20 +3,21 @@ import { getBlurDataURL } from "#/lib/images";
 import { allChangelogPosts } from "contentlayer/generated";
 import { constructMetadata, formatDate } from "#/lib/utils";
 import Link from "next/link";
-import { MDX } from "#/ui/blog/mdx";
+import { MDX } from "#/ui/content/mdx";
 import { Twitter } from "@/components/shared/icons";
 import { Rss } from "lucide-react";
+import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
 export const metadata = constructMetadata({
-  title: "Changelog - Dub",
+  title: "Changelog – Dub",
   description:
     "All the latest updates, improvements, and fixes to Dub - the link management tool for modern marketing teams.",
-  image: "https://dub.sh/api/og/changelog",
+  image: "/api/og/changelog",
 });
 
-export default async function Changelog() {
+export default function Changelog() {
   return (
-    <div className="mx-auto max-w-screen-xl md:px-20">
+    <MaxWidthWrapper className="px-0">
       <div className="relative grid border-b border-gray-200 py-20 md:grid-cols-4">
         <div className="md:col-span-1" />
         <div className="mx-5 flex flex-col space-y-6 md:col-span-3 md:mx-0">
@@ -48,18 +49,13 @@ export default async function Changelog() {
 
       <div className="divide-y divide-gray-200">
         {allChangelogPosts
-          .sort((a, b) => {
-            if (new Date(a.publishedAt) > new Date(b.publishedAt)) {
-              return -1;
-            }
-            return 1;
-          })
+          .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
           .map(async (post, idx) => (
             <div
               key={idx}
               className="grid py-20 md:grid-cols-4 md:px-5 xl:px-0"
             >
-              <div className="sticky top-10 hidden self-start md:col-span-1 md:block">
+              <div className="sticky top-20 hidden self-start md:col-span-1 md:block">
                 <Link href={`/changelog/${post.slug}`}>
                   <time
                     dateTime={post.publishedAt}
@@ -69,45 +65,43 @@ export default async function Changelog() {
                   </time>
                 </Link>
               </div>
-              <div className="md:col-span-3">
-                <div className="flex flex-col gap-6">
-                  <Link href={`/changelog/${post.slug}`}>
-                    <BlurImage
-                      src={post.image}
-                      alt={post.title}
-                      width={1200}
-                      height={900}
-                      priority={idx === 0} // since it's above the fold
-                      placeholder="blur"
-                      blurDataURL={await getBlurDataURL(post.image!)}
-                      className="border border-gray-100 md:rounded-2xl"
-                    />
-                  </Link>
-                  <Link
-                    href={`/changelog/${post.slug}`}
-                    className="group mx-5 flex items-center space-x-3 md:mx-0"
+              <div className="flex flex-col gap-6 md:col-span-3">
+                <Link href={`/changelog/${post.slug}`}>
+                  <BlurImage
+                    src={post.image}
+                    alt={post.title}
+                    width={1200}
+                    height={630}
+                    priority={idx === 0} // since it's above the fold
+                    placeholder="blur"
+                    blurDataURL={await getBlurDataURL(post.image!)}
+                    className="border border-gray-100 md:rounded-2xl"
+                  />
+                </Link>
+                <Link
+                  href={`/changelog/${post.slug}`}
+                  className="group mx-5 flex items-center space-x-3 md:mx-0"
+                >
+                  <time
+                    dateTime={post.publishedAt}
+                    className="text-sm text-gray-500 transition-all group-hover:text-gray-800 md:hidden"
                   >
-                    <time
-                      dateTime={post.publishedAt}
-                      className="text-sm text-gray-500 transition-all group-hover:text-gray-800 md:hidden"
-                    >
-                      {formatDate(post.publishedAt)}
-                    </time>
-                  </Link>
-                  <Link
-                    href={`/changelog/${post.slug}`}
-                    className="mx-5 md:mx-0"
-                  >
-                    <h2 className="font-display text-3xl font-bold tracking-tight text-gray-800 hover:underline hover:decoration-1 hover:underline-offset-4 md:text-4xl">
-                      {post.title}
-                    </h2>
-                  </Link>
-                  <MDX code={post.body.code} />
-                </div>
+                    {formatDate(post.publishedAt)}
+                  </time>
+                </Link>
+                <Link href={`/changelog/${post.slug}`} className="mx-5 md:mx-0">
+                  <h2 className="font-display text-3xl font-bold tracking-tight text-gray-800 hover:underline hover:decoration-1 hover:underline-offset-4 md:text-4xl">
+                    {post.title}
+                  </h2>
+                </Link>
+                <MDX
+                  code={post.body.code}
+                  className="mx-5 sm:prose-lg md:mx-0"
+                />
               </div>
             </div>
           ))}
       </div>
-    </div>
+    </MaxWidthWrapper>
   );
 }

@@ -1,10 +1,11 @@
 import SettingsLayout from "@/components/layout/app/settings-layout";
 import Form from "#/ui/form";
 import useProject from "#/lib/swr/use-project";
-import DeleteProject from "@/components/app/projects/settings/delete-project";
+import DeleteProject from "@/components/app/projects/delete-project";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { useRouter } from "next/router";
+import UploadLogo from "@/components/app/projects/upload-logo";
 
 export default function ProjectSettingsGeneral() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function ProjectSettingsGeneral() {
       />
       <Form
         title="Project Slug"
-        description="This is your project's URL slug on Dub."
+        description="This is your project's unique slug on Dub."
         inputData={{
           name: "slug",
           defaultValue: slug,
@@ -75,6 +76,7 @@ export default function ProjectSettingsGeneral() {
           })
         }
       />
+      <UploadLogo />
       <DeleteProject />
     </SettingsLayout>
   );

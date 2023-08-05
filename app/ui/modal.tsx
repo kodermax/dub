@@ -1,10 +1,11 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
-import FocusTrap from "focus-trap-react";
-import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { cn } from "#/lib/utils";
+import { Drawer } from "vaul";
+import * as Dialog from "@radix-ui/react-dialog";
+import useMediaQuery from "#/lib/hooks/use-media-query";
 
 export default function Modal({
   children,
@@ -12,21 +13,19 @@ export default function Modal({
   setShowModal,
   className,
   onClose,
-  disableDefaultHide,
+  preventDefaultClose,
 }: {
   children: React.ReactNode;
   showModal?: boolean;
   setShowModal?: Dispatch<SetStateAction<boolean>>;
   className?: string;
   onClose?: () => void;
-  disableDefaultHide?: boolean;
+  preventDefaultClose?: boolean;
 }) {
   const router = useRouter();
-  const mobileModalRef = useRef<HTMLDivElement | null>(null);
-  const desktopModalRef = useRef<HTMLDivElement | null>(null);
 
   const closeModal = ({ dragged }: { dragged?: boolean } = {}) => {
-    if (disableDefaultHide && !dragged) {
+    if (preventDefaultClose && !dragged) {
       return;
     }
     // fire onClose event if provided
@@ -40,101 +39,61 @@ export default function Modal({
       router.back();
     }
   };
+  const { isMobile } = useMediaQuery();
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        closeModal();
-      }
-    }
-    // only add listener if modal is open
-    if (showModal) document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [showModal, closeModal]);
-
-  const controls = useAnimation();
-  const transitionProps = { type: "spring", stiffness: 500, damping: 30 };
-  useEffect(() => {
-    controls.start({
-      y: 0,
-      transition: transitionProps,
-    });
-  }, []);
-
-  async function handleDragEnd(_, info) {
-    const offset = info.offset.y;
-    const velocity = info.velocity.y;
-    const height = mobileModalRef.current?.getBoundingClientRect().height || 0;
-    if (offset > height / 2 || velocity > 800) {
-      await controls.start({ y: "100%", transition: transitionProps });
-      closeModal({ dragged: true });
-    } else {
-      controls.start({ y: 0, transition: transitionProps });
-    }
+  if (isMobile) {
+    return (
+      <Drawer.Root
+        open={setShowModal ? showModal : true}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeModal({ dragged: true });
+          }
+        }}
+      >
+        <Drawer.Overlay className="fixed inset-0 z-40 bg-gray-100 bg-opacity-10 backdrop-blur" />
+        <Drawer.Portal>
+          <Drawer.Content
+            className={cn(
+              "fixed bottom-0 left-0 right-0 z-50 mt-24 rounded-t-[10px] border-t border-gray-200 bg-white",
+              className,
+            )}
+          >
+            <div className="sticky top-0 z-20 flex w-full items-center justify-center rounded-t-[10px] bg-inherit">
+              <div className="my-3 h-1 w-12 rounded-full bg-gray-300" />
+            </div>
+            {children}
+          </Drawer.Content>
+          <Drawer.Overlay />
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
   }
-
   return (
-    <AnimatePresence>
-      {(setShowModal ? showModal : true) && (
-        <FocusTrap
-          focusTrapOptions={{
-            initialFocus: false,
-            clickOutsideDeactivates: true,
-            onActivate: () => {
-              // prevent scroll outside of modal when modal is open
-              document.body.style.overflow = "hidden";
-            },
-            onDeactivate: () => {
-              // allow scroll outside of modal when modal is closed
-              document.body.style.overflow = "auto";
-            },
-          }}
+    <Dialog.Root
+      open={setShowModal ? showModal : true}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeModal();
+        }
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay
+          id="modal-backdrop"
+          className="fixed inset-0 z-40 hidden animate-fade-in bg-gray-100 bg-opacity-50 backdrop-blur-md md:block"
+        />
+        <Dialog.Content
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          className={cn(
+            "fixed inset-0 z-50 m-auto hidden max-h-fit w-full max-w-md animate-scale-in overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-xl md:block",
+            className,
+          )}
         >
-          <div className="absolute">
-            <motion.div
-              ref={mobileModalRef}
-              key="mobile-modal"
-              className="group fixed inset-x-0 bottom-0 z-40 max-h-[80vh] w-screen cursor-grab active:cursor-grabbing md:hidden"
-              initial={{ y: "100%" }}
-              animate={controls}
-              exit={{ y: "100%" }}
-              transition={transitionProps}
-              drag="y"
-              dragDirectionLock
-              onDragEnd={handleDragEnd}
-              dragElastic={{ top: 0, bottom: 1 }}
-              dragConstraints={{ top: 0, bottom: 0 }}
-            >
-              <div
-                className={cn(
-                  "rounded-t-4xl -mb-1 flex h-7 w-full items-center justify-center border-t border-gray-200 bg-white",
-                  className,
-                )}
-              >
-                <div className="-mr-1 h-1 w-6 rounded-full bg-gray-300 transition-all group-active:rotate-12" />
-                <div className="h-1 w-6 rounded-full bg-gray-300 transition-all group-active:-rotate-12" />
-              </div>
-              {children}
-            </motion.div>
-            <motion.div
-              ref={desktopModalRef}
-              key="desktop-modal"
-              className="fixed inset-0 z-40 m-auto hidden max-h-fit max-w-fit animate-scale-in md:block"
-            >
-              {children}
-            </motion.div>
-            <motion.div
-              id="modal-backdrop"
-              key="backdrop"
-              className="fixed inset-0 z-30 bg-gray-100 bg-opacity-10 backdrop-blur"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => closeModal()}
-            />
-          </div>
-        </FocusTrap>
-      )}
-    </AnimatePresence>
+          {children}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

@@ -8,8 +8,10 @@ import { constructMetadata } from "#/lib/utils";
 export const metadata = constructMetadata({
   title: "Metatags API - The Free API to Get Meta Tags from a URL",
   description:
-    "Dub's Metatags API is a free & simple API to retrieve meta & OG tags from a URL, powered by Vercel Edge Functions.",
+    "Dub's Metatags API is a free & simple API to retrieve meta & OG tags from a URL, powered by Dub – the link management tool for modern marketing teams.",
 });
+
+export const runtime = "edge";
 
 export default function Metatags() {
   return (
@@ -50,7 +52,7 @@ export default function Metatags() {
           <p>View the source code</p>
         </a>
 
-        <Suspense fallback="">
+        <Suspense>
           <LaunchTweet />
         </Suspense>
       </div>

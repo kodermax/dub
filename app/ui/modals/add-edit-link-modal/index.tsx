@@ -21,7 +21,7 @@ import { mutate } from "swr";
 import { useDebounce } from "use-debounce";
 import BlurImage from "#/ui/blur-image";
 import { AlertCircleFill, Lock, Random, X } from "@/components/shared/icons";
-import { LoadingCircle } from "#/ui/icons";
+import { LoadingCircle, Logo } from "#/ui/icons";
 import Modal from "#/ui/modal";
 import Tooltip, { TooltipContent } from "#/ui/tooltip";
 import useProject from "#/lib/hooks/use-project";
@@ -178,16 +178,21 @@ function AddEditLinkModal({
   }, [debouncedUrl, password, showAddEditLinkModal, proxy]);
 
   const logo = useMemo(() => {
-    // if the link is password protected, or if it's a new link and there's no URL yet,
-    // return the default Dub logo
-    if (password || (!debouncedUrl && !props)) {
-      return "/_static/logo.png";
-      // otherwise, get the favicon of the URL
-    } else {
-      return `${GOOGLE_FAVICON_URL}${getApexDomain(
-        debouncedUrl || props?.url || "https://dub.sh",
-      )}`;
-    }
+    // if the link is password protected, or if it's a new link and there's no URL yet, return the default Dub logo
+    // otherwise, get the favicon of the URL
+    const url = password || !debouncedUrl ? null : debouncedUrl || props?.url;
+
+    return url ? (
+      <BlurImage
+        src={`${GOOGLE_FAVICON_URL}${getApexDomain(url)}`}
+        alt="Logo"
+        className="h-10 w-10 rounded-full"
+        width={20}
+        height={20}
+      />
+    ) : (
+      <Logo />
+    );
   }, [password, debouncedUrl, props]);
 
   const endpoint = useMemo(() => {
@@ -258,9 +263,10 @@ function AddEditLinkModal({
     <Modal
       showModal={showAddEditLinkModal}
       setShowModal={setShowAddEditLinkModal}
-      disableDefaultHide={homepageDemo ? false : true}
+      className="max-w-screen-lg"
+      preventDefaultClose={homepageDemo ? false : true}
     >
-      <div className="relative grid max-h-[80vh] w-full divide-x divide-gray-100 overflow-scroll bg-white shadow-xl transition-all scrollbar-hide md:max-h-[min(906px,_90vh)] md:max-w-screen-lg md:grid-cols-2 md:rounded-2xl md:border md:border-gray-200">
+      <div className="relative grid max-h-[80vh] divide-x divide-gray-100 overflow-scroll scrollbar-hide md:max-h-[min(906px,_90vh)] md:grid-cols-2">
         {!hideXButton && !homepageDemo && (
           <button
             onClick={() => setShowAddEditLinkModal(false)}
@@ -275,13 +281,7 @@ function AddEditLinkModal({
           onScroll={handleScroll}
         >
           <div className="z-10 flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 pb-8 pt-8 transition-all md:sticky md:top-0 md:px-16">
-            <BlurImage
-              src={logo}
-              alt="Logo"
-              className="h-10 w-10 rounded-full"
-              width={20}
-              height={20}
-            />
+            {logo}
             <h3 className="text-lg font-medium">
               {props
                 ? `Edit ${linkConstructor({

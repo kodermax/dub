@@ -2,7 +2,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode, useContext, useEffect, useState } from "react";
-import { Divider, Logo } from "@/components/shared/icons";
+import { Divider } from "@/components/shared/icons";
+import Logo from "#/ui/icons/logo";
 import Meta from "../meta";
 import ProjectSelect from "./project-select";
 import UserDropdown from "./user-dropdown";
@@ -14,6 +15,9 @@ import Cookies from "js-cookie";
 import { ModalContext } from "#/ui/modal-provider";
 import Badge from "#/ui/badge";
 import { linkConstructor } from "#/lib/utils";
+import { HelpCircle } from "lucide-react";
+import { HOME_DOMAIN } from "#/lib/constants";
+import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
 const NavTabs = dynamic(() => import("./nav-tabs"), {
   ssr: false,
@@ -78,7 +82,7 @@ export default function AppLayout({
     }
   }, [plan, id, name, slug, stripeId, createdAt]);
 
-  const { setShowUpgradePlanModal } = useContext(ModalContext);
+  const { setShowUpgradePlanModal, setShowCMDK } = useContext(ModalContext);
 
   return (
     <div>
@@ -88,7 +92,7 @@ export default function AppLayout({
         className={`min-h-screen w-full ${bgWhite ? "bg-white" : "bg-gray-50"}`}
       >
         <div className="sticky left-0 right-0 top-0 z-20 border-b border-gray-200 bg-white">
-          <div className="mx-auto max-w-screen-xl px-2.5 md:px-20">
+          <MaxWidthWrapper>
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
                 <Link href="/">
@@ -101,7 +105,9 @@ export default function AppLayout({
                     <Divider className="h-8 w-8 text-gray-200 sm:mr-3" />
                     <Link
                       href={
-                        slug ? `/${slug}/${domain}/${key}` : `/links/${key}`
+                        slug
+                          ? `/${slug}/${domain}/${encodeURIComponent(key)}`
+                          : `/links/${encodeURIComponent(key)}`
                       }
                       className="text-sm font-medium"
                     >
@@ -126,10 +132,25 @@ export default function AppLayout({
                   </button>
                 )}
               </div>
-              <UserDropdown />
+              <div className="flex items-center space-x-6">
+                <a
+                  href={`${HOME_DOMAIN}/changelog`}
+                  className="hidden text-sm text-gray-500 transition-colors hover:text-gray-700 md:block"
+                  target="_blank"
+                >
+                  Changelog
+                </a>
+                <button
+                  onClick={() => setShowCMDK(true)}
+                  className="hidden text-sm text-gray-500 transition-colors hover:text-gray-700 md:block"
+                >
+                  Help
+                </button>
+                <UserDropdown />
+              </div>
             </div>
             <NavTabs />
-          </div>
+          </MaxWidthWrapper>
         </div>
         <div>{children}</div>
       </div>

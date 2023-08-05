@@ -6,10 +6,11 @@ import Confetti from "react-dom-confetti";
 import { CheckCircleFill, XCircleFill } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import Switch from "#/ui/switch";
-import Tooltip from "#/ui/tooltip";
+import Tooltip, { SimpleTooltipContent } from "#/ui/tooltip";
 import { PLANS } from "#/lib/stripe/utils";
 import { nFormatter } from "#/lib/utils";
 import { HelpCircle, MinusCircle } from "lucide-react";
+import { APP_DOMAIN } from "#/lib/constants";
 
 const pricingItems = [
   {
@@ -26,19 +27,40 @@ const pricingItems = [
       },
       {
         text: "Advanced link features",
-        footnote:
-          "Password protection, link expiration, device targeting, custom social media cards, etc.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Password protection, link expiration, device targeting, custom social media cards, etc."
+            cta="Learn more."
+            href="/help/article/how-to-create-link#the-dub-link-builder"
+          />
+        ),
       },
       { text: "Up to 3 users", neutral: true },
       { text: "30-day link history", neutral: true },
       {
         text: "Root domain redirect",
-        footnote:
-          "Redirect vistors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Redirect vistors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice."
+            cta="Learn more."
+            href="/help/article/how-to-redirect-root-domain"
+          />
+        ),
         negative: true,
       },
       {
         text: "Custom QR Code Logo",
+        footnote: (
+          <SimpleTooltipContent
+            title="Set a custom logo for your links' QR codes."
+            cta="Learn more."
+            href="/help/article/custom-qr-codes"
+          />
+        ),
+        negative: true,
+      },
+      {
+        text: "API Access",
         negative: true,
       },
       { text: "SSO/SAML", negative: true },
@@ -60,18 +82,39 @@ const pricingItems = [
       },
       {
         text: "Advanced link features",
-        footnote:
-          "Password protection, link expiration, device targeting, custom social media cards, etc.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Password protection, link expiration, device targeting, custom social media cards, etc."
+            cta="Learn more."
+            href="/help/article/how-to-create-link#the-dub-link-builder"
+          />
+        ),
       },
       { text: "Unlimited users" },
       { text: "Unlimited link history" },
       {
         text: "Root domain redirect",
-        footnote:
-          "Redirect visitors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Redirect vistors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice."
+            cta="Learn more."
+            href="/help/article/how-to-redirect-root-domain"
+          />
+        ),
       },
       {
         text: "Custom QR Code Logo",
+        footnote: (
+          <SimpleTooltipContent
+            title="Set a custom logo for your links' QR codes."
+            cta="Learn more."
+            href="/help/article/custom-qr-codes"
+          />
+        ),
+      },
+      {
+        text: "API Access",
+        footnote: "Under development. ETA: September 2023",
       },
       { text: "SSO/SAML", negative: true },
       { text: "Priority support", negative: true },
@@ -92,18 +135,39 @@ const pricingItems = [
       },
       {
         text: "Advanced link features",
-        footnote:
-          "Password protection, link expiration, device targeting, custom social media cards, etc.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Password protection, link expiration, device targeting, custom social media cards, etc."
+            cta="Learn more."
+            href="/help/article/how-to-create-link#the-dub-link-builder"
+          />
+        ),
       },
       { text: "Unlimited users" },
       { text: "Unlimited link history" },
       {
         text: "Root domain redirect",
-        footnote:
-          "Redirect visitors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice.",
+        footnote: (
+          <SimpleTooltipContent
+            title="Redirect vistors that land on the root of your domain (e.g. yourdomain.com) to a page of your choice."
+            cta="Learn more."
+            href="/help/article/how-to-redirect-root-domain"
+          />
+        ),
       },
       {
         text: "Custom QR Code Logo",
+        footnote: (
+          <SimpleTooltipContent
+            title="Set a custom logo for your links' QR codes."
+            cta="Learn more."
+            href="/help/article/custom-qr-codes"
+          />
+        ),
+      },
+      {
+        text: "API Access",
+        footnote: "Under development. ETA: September 2023",
       },
       { text: "SSO/SAML", footnote: "Under development. ETA: Q4 2023" },
       {
@@ -244,11 +308,7 @@ const Pricing = () => {
               <div className="border-t border-gray-200" />
               <div className="p-5">
                 <Link
-                  href={
-                    process.env.NODE_ENV === "production"
-                      ? "https://app.dub.sh/register"
-                      : "http://app.localhost:3000/register"
-                  }
+                  href={`${APP_DOMAIN}/register`}
                   className={`${
                     plan === "Pro"
                       ? "border border-transparent bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:border-blue-700 hover:bg-white hover:bg-clip-text hover:text-transparent"

@@ -8,9 +8,8 @@ import {
   getUrlWithoutUTMParams,
 } from "#/lib/utils";
 import Switch from "#/ui/switch";
-import { FADE_IN_ANIMATION_SETTINGS } from "#/lib/constants";
-import Tooltip from "#/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { FADE_IN_ANIMATION_SETTINGS, HOME_DOMAIN } from "#/lib/constants";
+import { InfoTooltip, SimpleTooltipContent } from "#/ui/tooltip";
 
 export default function UTMSection({
   props,
@@ -61,9 +60,15 @@ export default function UTMSection({
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-between space-x-2">
           <h2 className="text-sm font-medium text-gray-900">UTM Builder</h2>
-          <Tooltip content="UTM parameters are tags that will be added to the end of the destination URL. When your link is clicked, the tags are detected and tracked by your analytics software.">
-            <HelpCircle className="h-4 w-4 text-gray-600" />
-          </Tooltip>
+          <InfoTooltip
+            content={
+              <SimpleTooltipContent
+                title="Add UTM parameters to your short links for conversion tracking."
+                cta="Learn more."
+                href={`${HOME_DOMAIN}/help/article/how-to-create-link#utm-builder`}
+              />
+            }
+          />
         </div>
         <Switch fn={() => setEnabled(!enabled)} checked={enabled} />
       </div>

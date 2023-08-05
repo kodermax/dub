@@ -2,10 +2,9 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { LinkProps } from "#/lib/types";
 import Switch from "#/ui/switch";
 import { motion } from "framer-motion";
-import { FADE_IN_ANIMATION_SETTINGS } from "#/lib/constants";
+import { FADE_IN_ANIMATION_SETTINGS, HOME_DOMAIN } from "#/lib/constants";
 import { Eye, EyeOff } from "@/components/shared/icons";
-import Tooltip from "#/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { InfoTooltip, SimpleTooltipContent } from "#/ui/tooltip";
 
 export default function PasswordSection({
   props,
@@ -40,9 +39,15 @@ export default function PasswordSection({
           <h2 className="text-sm font-medium text-gray-900">
             Password Protection
           </h2>
-          <Tooltip content="Password protection allows you to restrict access to your link by encrypting it with a password. Only those who know the password will be able to access your link.">
-            <HelpCircle className="h-4 w-4 text-gray-600" />
-          </Tooltip>
+          <InfoTooltip
+            content={
+              <SimpleTooltipContent
+                title="Restrict access to your short links by encrypting it with a password."
+                cta="Learn more."
+                href={`${HOME_DOMAIN}/help/article/how-to-create-link#password-protection`}
+              />
+            }
+          />
         </div>
         <Switch fn={() => setEnabled(!enabled)} checked={enabled} />
       </div>

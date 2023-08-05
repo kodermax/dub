@@ -1,16 +1,17 @@
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useContext, useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Logout } from "@/components/shared/icons";
-import Popover from "@/components/shared/popover";
+import Popover from "#/ui/popover";
 import IconMenu from "../../shared/icon-menu";
 import Image from "next/image";
 import va from "@vercel/analytics";
 import Link from "next/link";
-import { Edit3, MessageCircle, Settings } from "lucide-react";
+import { Edit3, HelpCircle, MessageCircle, Settings } from "lucide-react";
 import { Crisp } from "crisp-sdk-web";
 import { LoadingCircle } from "#/ui/icons";
 import Badge from "#/ui/badge";
 import Cookies from "js-cookie";
+import { ModalContext } from "#/ui/modal-provider";
 
 const latestChangelogId = "read-changelog-0715";
 
@@ -23,6 +24,7 @@ export default function UserDropdown() {
     Crisp.chat.onChatOpened(() => {
       va.track("Open support chat");
       setOpeningSupport(false);
+      setOpenPopover(false);
     });
     Crisp.chat.onChatClosed(() => {
       Crisp.chat.hide();
@@ -37,6 +39,8 @@ export default function UserDropdown() {
       setUnread(true);
     }
   }, []);
+
+  const { setShowCMDK } = useContext(ModalContext);
 
   return (
     <div className="relative inline-block">
@@ -53,6 +57,18 @@ export default function UserDropdown() {
                 {session?.user?.email}
               </p>
             </div>
+            <button
+              className="w-full rounded-md p-2 text-sm transition-all duration-75 hover:bg-gray-100 active:bg-gray-200"
+              onClick={() => {
+                setShowCMDK(true);
+                setOpenPopover(false);
+              }}
+            >
+              <IconMenu
+                text="Help Center"
+                icon={<HelpCircle className="h-4 w-4" />}
+              />
+            </button>
             <button
               className="w-full rounded-md p-2 text-sm transition-all duration-75 hover:bg-gray-100 active:bg-gray-200"
               onClick={() => {
@@ -113,7 +129,7 @@ export default function UserDropdown() {
           onClick={() => setOpenPopover(!openPopover)}
           className="group relative"
         >
-          {session && (
+          {session ? (
             <Image
               alt={session?.user?.email || "Avatar for logged in user"}
               src={
@@ -124,6 +140,8 @@ export default function UserDropdown() {
               height={40}
               className="h-9 w-9 rounded-full border border-gray-300 transition-all duration-75 group-focus:outline-none group-active:scale-95 sm:h-10 sm:w-10"
             />
+          ) : (
+            <div className="h-9 w-9 animate-pulse rounded-full border border-gray-300 bg-gray-100 sm:h-10 sm:w-10" />
           )}
           {unread && (
             <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-blue-500" />

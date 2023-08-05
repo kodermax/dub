@@ -1,15 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { Github, LinkedIn, Logo, Twitter } from "@/components/shared/icons";
+import { Logo, LogoType } from "#/ui/icons";
+import { Github, LinkedIn, Twitter } from "@/components/shared/icons";
 import { useParams } from "next/navigation";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import va from "@vercel/analytics";
 
 const navigation = {
-  product: [{ name: "Pricing", href: "/pricing" }],
-  company: [{ name: "Changelog", href: "/changelog" }],
-  resources: [{ name: "Metatags API", href: "/metatags" }],
+  product: [
+    { name: "Pricing", href: "/pricing" },
+    { name: "Changelog", href: "/changelog" },
+  ],
+  company: [{ name: "Blog", href: "/blog" }],
+  resources: [
+    { name: "Help Center", href: "/help" },
+    { name: "Metatags API", href: "/metatags" },
+  ],
   legal: [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
@@ -39,7 +46,7 @@ export default function Footer() {
               })}
             >
               <span className="sr-only">Dub.sh Logo</span>
-              <Logo className="h-7 w-7 text-gray-600" />
+              <LogoType className="h-7 text-gray-600" />
             </Link>
             <p className="max-w-xs text-sm text-gray-500">
               Giving modern marketing teams superpowers with short links that
@@ -50,7 +57,7 @@ export default function Footer() {
                 href="https://twitter.com/dubdotsh"
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md p-2 transition-colors hover:bg-gray-100 active:bg-gray-200"
+                className="group rounded-md p-2 transition-colors hover:bg-gray-100 active:bg-gray-200"
               >
                 <span className="sr-only">Twitter</span>
                 <Twitter className="h-5 w-5 text-gray-600" />
@@ -103,7 +110,7 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-600">Tools</h3>
+                <h3 className="text-sm font-semibold text-gray-600">Company</h3>
                 <ul role="list" className="mt-4 space-y-4">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
@@ -128,7 +135,9 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-600">Company</h3>
+                <h3 className="text-sm font-semibold text-gray-600">
+                  Resources
+                </h3>
                 <ul role="list" className="mt-4 space-y-4">
                   {navigation.resources.map((item) => (
                     <li key={item.name}>
